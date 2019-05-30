@@ -1,0 +1,10 @@
+*.mod
+*.o
+*.optrpt
+*.out
+*.txt
+aps*
+inputs/
+*.err
+core.*
+

@@ -15,11 +15,15 @@ FORTRAN = mpif90
 #FORTRAN = ftn
 #FORTRAN = mpiifort
 
-TARGET = gsnap
-#TARGET = isnap
+#TARGET = gsnap
+TARGET = isnap
 #TARGET = ksnap
 
 #HASWELL = yes
+SKYLAKE = yes
+#SSE = yes
+#NO_VEC = yes
+#OPT = no
 
 ifeq ($(MPI),yes)
   DEFS := $(DEFS) MPI
@@ -35,7 +39,7 @@ ifeq ($(OPENMP),yes)
   DEFS := $(DEFS) OPENMP
   ifeq ($(TARGET),gsnap)
     OMPFLAG = -fopenmp
-  else
+  else # isnap
     # Assuming Intel 15, if 14, use -openmp
     OMPFLAG = -qopenmp
   endif
@@ -61,14 +65,24 @@ ifeq ($(TARGET),isnap)
   FFLAGS = -O3 $(OMPFLAG) -ip -align array32byte -qno-opt-dynamic-align -fno-fnalias -fp-model fast -fp-speculation fast
   ifeq ($(HASWELL),yes)
     FFLAGS := $(FFLAGS) -xcore-avx2
+  else ifeq ($(SKYLAKE),yes)
+    FFLAGS := $(FFLAGS) -xSKYLAKE-AVX512 -qopt-zmm-usage=high
+    FFLAGS := $(FFLAGS) -qopt-report=5
+  else ifeq ($(SSE),yes)
+    FFLAGS := $(FFLAGS) -xSSE2
+    FFLAGS := $(FFLAGS) -qopt-report=5
+  else ifeq ($(NO_VEC),yes)
+    FFLAGS := $(FFLAGS) -no-vec
+    FFLAGS := $(FFLAGS) -qopt-report=5
   else
-    FFLAGS := $(FFLAGS) -xHost
+    # FFLAGS := $(FFLAGS) -xHost
+    FFLAGS := $(FFLAGS) -xAVX
   endif
   FFLAG2 =
   PP = fpp
   ifeq ($(OPT),no)
-    TARGET = isnap_db
-    FFLAGS = -O0 $(OMPFLAG) -g -check bounds -traceback -warn unused
+    #TARGET = isnap_db
+    FFLAGS = -O0 $(OMPFLAG) -no-vec -g -check bounds -traceback -warn unused
     FFLAG2 =
   endif
 endif
