@@ -15,8 +15,8 @@ FORTRAN = mpif90
 #FORTRAN = ftn
 #FORTRAN = mpiifort
 
-#TARGET = gsnap
-TARGET = isnap
+TARGET = gsnap
+#TARGET = isnap
 #TARGET = ksnap
 
 #HASWELL = yes
